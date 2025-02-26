@@ -4,30 +4,34 @@ import type {
 	INodeType,
 	INodeTypeDescription,
 } from 'n8n-workflow';
-import { NodeConnectionType, NodeOperationError } from 'n8n-workflow';
+import { NodeOperationError } from 'n8n-workflow';
+// @ts-ignore
+import get from 'lodash/get';
+import exifr from 'exifr';
 
 export class ExampleNode implements INodeType {
 	description: INodeTypeDescription = {
-		displayName: 'Example Node',
-		name: 'exampleNode',
+		displayName: 'Exifr Node',
+		name: 'exifrNode',
 		group: ['transform'],
 		version: 1,
-		description: 'Basic Example Node',
+		description: 'Get EXIF data from images.',
 		defaults: {
-			name: 'Example Node',
+			name: 'Exifr Node',
 		},
-		inputs: [NodeConnectionType.Main],
-		outputs: [NodeConnectionType.Main],
+		inputs: ['main'],
+		outputs: ['main'],
 		properties: [
 			// Node properties which the user gets displayed and
 			// can change on the node.
 			{
-				displayName: 'My String',
-				name: 'myString',
+				displayName: 'Input Binary Field',
+				name: 'binaryPropertyName',
 				type: 'string',
-				default: '',
-				placeholder: 'Placeholder value',
-				description: 'The description text',
+				default: 'data',
+				required: true,
+				placeholder: 'e.g. data',
+				description: 'The name of the binary input field containing the raw image data',
 			},
 		],
 	};
@@ -40,17 +44,21 @@ export class ExampleNode implements INodeType {
 		const items = this.getInputData();
 
 		let item: INodeExecutionData;
-		let myString: string;
 
 		// Iterates over all input items and add the key "myString" with the
 		// value the parameter "myString" resolves to.
 		// (This could be a different value for each item in case it contains an expression)
 		for (let itemIndex = 0; itemIndex < items.length; itemIndex++) {
 			try {
-				myString = this.getNodeParameter('myString', itemIndex, '') as string;
 				item = items[itemIndex];
+				const binaryPropertyName = this.getNodeParameter('binaryPropertyName', itemIndex);
+				const image = get(item.binary, binaryPropertyName);
 
-				item.json.myString = myString;
+				if (!image) {
+					continue;
+				}
+
+				item.json.exif = await exifr.parse(image);
 			} catch (error) {
 				// This node should never fail but we want to showcase how
 				// to handle errors.
