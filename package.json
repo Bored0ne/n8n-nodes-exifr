@@ -1,6 +1,6 @@
 {
   "name": "n8n-nodes-exifr",
-  "version": "0.1.0",
+  "version": "0.1.11",
   "description": "This package leverages exifr to collect exif data from binary images",
   "keywords": [
     "n8n-community-node-package"
@@ -40,12 +40,15 @@
     ]
   },
   "devDependencies": {
+    "@types/node": "^22.13.5",
     "@typescript-eslint/parser": "^7.15.0",
     "eslint": "^8.56.0",
     "eslint-plugin-n8n-nodes-base": "^1.16.1",
     "gulp": "^4.0.2",
     "prettier": "^3.3.2",
-    "typescript": "^5.5.3",
+    "typescript": "^5.5.3"
+  },
+  "dependencies": {
     "exifr": "^7.1.3"
   },
   "peerDependencies": {

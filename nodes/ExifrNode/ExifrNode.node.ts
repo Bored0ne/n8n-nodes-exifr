@@ -1,15 +1,15 @@
-import type {
+import {
 	IExecuteFunctions,
 	INodeExecutionData,
 	INodeType,
 	INodeTypeDescription,
+	NodeOperationError,
 } from 'n8n-workflow';
-import { NodeOperationError } from 'n8n-workflow';
 // @ts-ignore
 import get from 'lodash/get';
 import exifr from 'exifr';
 
-export class ExampleNode implements INodeType {
+export class ExifrNode implements INodeType {
 	description: INodeTypeDescription = {
 		displayName: 'Exifr Node',
 		name: 'exifrNode',
@@ -19,7 +19,9 @@ export class ExampleNode implements INodeType {
 		defaults: {
 			name: 'Exifr Node',
 		},
+		// @ts-ignore
 		inputs: ['main'],
+		// @ts-ignore
 		outputs: ['main'],
 		properties: [
 			// Node properties which the user gets displayed and
@@ -53,13 +55,15 @@ export class ExampleNode implements INodeType {
 				item = items[itemIndex];
 				const binaryPropertyName = this.getNodeParameter('binaryPropertyName', itemIndex);
 				const image = get(item.binary, binaryPropertyName);
+				console.log(image);
 
 				if (!image) {
 					continue;
 				}
-
-				item.json.exif = await exifr.parse(image);
+				item.json.exif = {};
+				item.json.exif = await exifr.parse(image.data);
 			} catch (error) {
+				console.log(error);
 				// This node should never fail but we want to showcase how
 				// to handle errors.
 				if (this.continueOnFail()) {
